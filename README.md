@@ -4,4 +4,10 @@ The Court Reservation System is a desktop application built with Java, Swing, an
 
 The Court Reservation System uses a modular structure with **Java Swing for the UI**, **DAO classes for database operations**, **model classes for data representation**, and **MySQL Connector/J v5** for connecting to a MySQL database.
 
+
+Important Notice
+This project is open source and available for public use and contribution. However, if you plan to fork, modify, or use this project in your own work, please contact me first at ryleanthony2004@gmail.com or ryleanthony.gabotero@foundationu.com to discuss your intentions. I appreciate collaboration and want to ensure proper credit and coordination.
+
+Thank you for your understanding and support!
+
 -DevR6
