@@ -1,0 +1,156 @@
+Court Reservation System - DAO and Model Relationships
+=================================================
+
+1. Data Access Objects (DAOs)
+----------------------------
+DAOs are responsible for database operations and act as a bridge between the application and the database.
+
+1.1 AccountDAO (src/dao/AccountDAO.java)
+---------------------------------------
+Purpose: Manages user account operations
+Key Methods:
+- login(username, password): Authenticates users and returns Account object
+- getAllAccounts(): Retrieves all user accounts
+- updateAccountStatus(accountId, status): Updates user account status (Active/Inactive)
+- getAccountById(accountId): Retrieves a specific account by ID
+- registerUser(account): [Currently commented out] For future user registration
+
+Database Tables Used:
+- account: Stores user information
+- type: Links to account types (admin/user)
+- department: Links to user departments
+
+1.2 CourtDAO (src/dao/CourtDAO.java)
+----------------------------------
+Purpose: Manages court-related operations
+Key Methods:
+- getAllCourts(): Retrieves all available courts
+- getCourtById(courtId): Gets specific court details
+- isCourtAvailable(courtId, date, startTime, endTime): Checks court availability
+- createCourt(court): Adds new court
+- updateCourt(court): Updates court information
+- deleteCourt(courtId): Removes a court
+
+Database Tables Used:
+- court: Stores court information
+- court_type: Links to court types (indoor/outdoor)
+
+1.3 ReservationDAO (src/dao/ReservationDAO.java)
+----------------------------------------------
+Purpose: Manages court reservation operations
+Key Methods:
+- createReservation(reservation): Creates new reservation
+- getAllReservations(): Gets all reservations
+- getAllReservationsWithDetails(): Gets reservations with joined user/court details
+
+Database Tables Used:
+- reservation: Stores reservation information
+- account: Links to users making reservations
+- court: Links to reserved courts
+
+2. Model Classes
+---------------
+Models represent the data structures used in the application.
+
+2.1 Account (src/model/Account.java)
+----------------------------------
+Represents a user account in the system
+Key Properties:
+- accountId: Unique identifier
+- typeId: User type (0=admin, 1=user)
+- departmentId: Department affiliation
+- firstName, lastName: User's name
+- email, phone: Contact information
+- username, password: Login credentials
+- status: Account status (Active/Inactive)
+
+Relationships:
+- Links to type table for role information
+- Links to department table for department information
+- Referenced by Reservation for user reservations
+
+2.2 Court (src/model/Court.java)
+------------------------------
+Represents a court in the system
+Key Properties:
+- courtId: Unique identifier
+- courtTypeId: Type of court
+- description: Court description
+
+Relationships:
+- Links to court_type table for court type information
+- Referenced by Reservation for court reservations
+
+2.3 Reservation (src/model/Reservation.java)
+-----------------------------------------
+Represents a court reservation
+Key Properties:
+- reservationId: Unique identifier
+- accountId: User making reservation
+- courtId: Court being reserved
+- reservationDate: Date of reservation
+- startDateTime, endDateTime: Time slot
+- status: Reservation status
+- remark: Purpose/notes
+
+Additional Properties (for display):
+- userName: Username of reserver
+- userFullName: Full name of reserver
+- courtName: Name of court
+- courtType: Type of court
+- department: Department of reserver
+
+Relationships:
+- Links to Account for user information
+- Links to Court for court information
+
+3. Database Relationships
+------------------------
+Primary Relationships:
+1. Account -> Type (Many-to-One)
+   - Each account has one type (admin/user)
+   - Type can have many accounts
+
+2. Account -> Department (Many-to-One)
+   - Each account belongs to one department
+   - Department can have many accounts
+
+3. Court -> CourtType (Many-to-One)
+   - Each court has one type
+   - Court type can have many courts
+
+4. Reservation -> Account (Many-to-One)
+   - Each reservation belongs to one account
+   - Account can have many reservations
+
+5. Reservation -> Court (Many-to-One)
+   - Each reservation is for one court
+   - Court can have many reservations
+
+4. Security Considerations
+-------------------------
+1. Password Handling:
+   - Passwords are hashed using MD5 (in AccountDAO)
+   - Hashing is performed during login and registration
+   - No plain text passwords are stored
+
+2. Account Status:
+   - Accounts can be Active or Inactive
+   - Inactive accounts cannot login
+   - Status changes are managed by administrators
+
+5. Future Considerations
+-----------------------
+1. User Registration:
+   - Currently disabled (commented out in AccountDAO)
+   - Will be implemented with admin approval workflow
+
+2. Password Security:
+   - Consider upgrading from MD5 to a more secure hashing algorithm
+   - Add salt to password hashing
+   - Implement password reset functionality
+
+3. Data Validation:
+   - Add more robust input validation
+   - Implement data sanitization
+   - Add transaction management for critical operations 

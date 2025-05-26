@@ -1,0 +1,193 @@
+Court Reservation System - DAO Methods Documentation
+================================================
+
+1. AccountDAO (src/dao/AccountDAO.java)
+-------------------------------------
+Purpose: Handles all user account-related database operations
+
+1.1 Authentication Methods
+------------------------
+public Account login(String username, String password)
+- Purpose: Authenticates user login
+- Parameters:
+  * username: User's login name
+  * password: User's password (will be hashed)
+- Returns: Account object if authentication successful, null otherwise
+- Database Operation: SELECT with WHERE clause on username and password
+- Security: Passwords are hashed using MD5 before comparison
+- Usage: Called by LoginFrame during user login
+
+1.2 Account Management Methods
+----------------------------
+public List<Account> getAllAccounts()
+- Purpose: Retrieves all user accounts
+- Returns: List of Account objects
+- Database Operation: SELECT with JOIN on type and department tables
+- Usage: Used by UserManagementFrame to display user list
+
+public boolean updateAccountStatus(int accountId, String status)
+- Purpose: Updates user account status (Active/Inactive)
+- Parameters:
+  * accountId: ID of account to update
+  * status: New status ("Active" or "Inactive")
+- Returns: boolean indicating success/failure
+- Database Operation: UPDATE account table
+- Usage: Called by UserManagementFrame for account activation/deactivation
+
+public Account getAccountById(int accountId)
+- Purpose: Retrieves specific account details
+- Parameters:
+  * accountId: ID of account to retrieve
+- Returns: Account object or null if not found
+- Database Operation: SELECT with WHERE clause on account_id
+- Usage: Used by dashboards to display user information
+
+2. CourtDAO (src/dao/CourtDAO.java)
+---------------------------------
+Purpose: Manages court-related database operations
+
+2.1 Court Retrieval Methods
+-------------------------
+public List<Court> getAllCourts()
+- Purpose: Gets all available courts
+- Returns: List of Court objects
+- Database Operation: SELECT with JOIN on court_type table
+- Usage: Used by ReservationForm and CourtManagementFrame
+
+public Court getCourtById(int courtId)
+- Purpose: Retrieves specific court details
+- Parameters:
+  * courtId: ID of court to retrieve
+- Returns: Court object or null if not found
+- Database Operation: SELECT with WHERE clause on court_id
+- Usage: Used for court detail display and validation
+
+2.2 Court Management Methods
+--------------------------
+public boolean createCourt(Court court)
+- Purpose: Adds new court to system
+- Parameters:
+  * court: Court object with court details
+- Returns: boolean indicating success/failure
+- Database Operation: INSERT into court table
+- Usage: Called by CourtManagementFrame for new court creation
+
+public boolean updateCourt(Court court)
+- Purpose: Updates existing court information
+- Parameters:
+  * court: Court object with updated details
+- Returns: boolean indicating success/failure
+- Database Operation: UPDATE court table
+- Usage: Called by CourtManagementFrame for court updates
+
+public boolean deleteCourt(int courtId)
+- Purpose: Removes court from system
+- Parameters:
+  * courtId: ID of court to delete
+- Returns: boolean indicating success/failure
+- Database Operation: DELETE from court table
+- Usage: Called by CourtManagementFrame for court deletion
+
+2.3 Availability Methods
+----------------------
+public boolean isCourtAvailable(int courtId, LocalDate date, 
+                              LocalDateTime startTime, LocalDateTime endTime)
+- Purpose: Checks if court is available for given time slot
+- Parameters:
+  * courtId: ID of court to check
+  * date: Date of reservation
+  * startTime: Start time of reservation
+  * endTime: End time of reservation
+- Returns: boolean indicating availability
+- Database Operation: SELECT with complex WHERE clause checking for conflicts
+- Usage: Called by ReservationForm for real-time availability checking
+
+3. ReservationDAO (src/dao/ReservationDAO.java)
+--------------------------------------------
+Purpose: Handles all reservation-related database operations
+
+3.1 Reservation Creation
+----------------------
+public boolean createReservation(Reservation reservation)
+- Purpose: Creates new court reservation
+- Parameters:
+  * reservation: Reservation object with booking details
+- Returns: boolean indicating success/failure
+- Database Operation: INSERT into reservation table
+- Usage: Called by ReservationForm on submission
+
+3.2 Reservation Retrieval
+-----------------------
+public List<Reservation> getAllReservations()
+- Purpose: Gets all reservations
+- Returns: List of basic Reservation objects
+- Database Operation: SELECT from reservation table
+- Usage: Used for basic reservation listing
+
+public List<Reservation> getAllReservationsWithDetails()
+- Purpose: Gets all reservations with joined user and court details
+- Returns: List of Reservation objects with additional details
+- Database Operation: SELECT with JOIN on account and court tables
+- Usage: Used by ReservationManagementFrame for detailed view
+
+public List<Reservation> getReservationsByAccount(int accountId)
+- Purpose: Gets reservations for specific user
+- Parameters:
+  * accountId: ID of account to get reservations for
+- Returns: List of Reservation objects
+- Database Operation: SELECT with WHERE clause on account_id
+- Usage: Used by MyReservationsFrame
+
+3.3 Reservation Management
+------------------------
+public boolean updateReservationStatus(int reservationId, String status)
+- Purpose: Updates reservation status
+- Parameters:
+  * reservationId: ID of reservation to update
+  * status: New status (Pending/Approved/Rejected)
+- Returns: boolean indicating success/failure
+- Database Operation: UPDATE reservation table
+- Usage: Called by ReservationManagementFrame for approval/rejection
+
+4. Common DAO Patterns
+--------------------
+1. Connection Management:
+   - All DAOs use DatabaseConnection for database access
+   - Connections are obtained and closed in try-with-resources blocks
+   - Proper error handling and resource cleanup
+
+2. SQL Operations:
+   - PreparedStatements used for all database operations
+   - Parameters properly escaped to prevent SQL injection
+   - Transactions used where appropriate
+
+3. Error Handling:
+   - SQLExceptions caught and logged
+   - User-friendly error messages returned
+   - Proper cleanup in case of errors
+
+4. Data Mapping:
+   - ResultSet data mapped to model objects
+   - Null handling for optional fields
+   - Type conversion handled safely
+
+5. Future DAO Improvements
+------------------------
+1. Connection Pooling:
+   - Implement HikariCP for better connection management
+   - Configure appropriate pool size and timeouts
+
+2. Transaction Management:
+   - Add explicit transaction support
+   - Implement rollback mechanisms
+   - Add transaction isolation levels
+
+3. Query Optimization:
+   - Add indexes for frequently queried columns
+   - Optimize JOIN operations
+   - Implement query caching where appropriate
+
+4. Security Enhancements:
+   - Add input validation at DAO level
+   - Implement audit logging
+   - Add rate limiting for sensitive operations 
